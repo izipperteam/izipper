@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		183A22251BE2F7BD0033A740 /* IZdiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183A22241BE2F7BD0033A740 /* IZdiscovery.swift */; };
 		183A22271BE2F7E20033A740 /* IZService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 183A22261BE2F7E20033A740 /* IZService.swift */; };
 		41A5095F1BE2EF2B007A88E2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A5095E1BE2EF2B007A88E2 /* AppDelegate.swift */; };
 		41A509611BE2EF2B007A88E2 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A509601BE2EF2B007A88E2 /* FirstViewController.swift */; };
@@ -37,7 +36,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		183A22241BE2F7BD0033A740 /* IZdiscovery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IZdiscovery.swift; sourceTree = "<group>"; };
 		183A22261BE2F7E20033A740 /* IZService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IZService.swift; sourceTree = "<group>"; };
 		41A5095B1BE2EF2B007A88E2 /* izipper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = izipper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		41A5095E1BE2EF2B007A88E2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -110,7 +108,6 @@
 				41A509671BE2EF2B007A88E2 /* Assets.xcassets */,
 				41A509691BE2EF2B007A88E2 /* LaunchScreen.storyboard */,
 				41A5096C1BE2EF2B007A88E2 /* Info.plist */,
-				183A22241BE2F7BD0033A740 /* IZdiscovery.swift */,
 				183A22261BE2F7E20033A740 /* IZService.swift */,
 			);
 			path = izipper;
@@ -268,7 +265,6 @@
 				41A509631BE2EF2B007A88E2 /* SecondViewController.swift in Sources */,
 				41A5095F1BE2EF2B007A88E2 /* AppDelegate.swift in Sources */,
 				41A509611BE2EF2B007A88E2 /* FirstViewController.swift in Sources */,
-				183A22251BE2F7BD0033A740 /* IZdiscovery.swift in Sources */,
 				183A22271BE2F7E20033A740 /* IZService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
