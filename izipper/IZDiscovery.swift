@@ -14,6 +14,7 @@ class IZDiscovery: NSObject, CBCentralManagerDelegate {
         
         var centralManager: CBCentralManager
         var peripheral: CBPeripheral
+        var peripheralBLE: CBPeripheral
         var bleService: IZService? = nil
         
         class var sharedInstance: IZDiscovery {
@@ -49,6 +50,65 @@ class IZDiscovery: NSObject, CBCentralManagerDelegate {
         }
         
         
+        if let peripheralBLE = self.peripheral where self.peripheralBLE.state == CBperipheralStateDisconnected{
+            //retain the peripheral before trying to connect
+            self.peripheralBLE = peripheral
+            
+            //reset service
+            self.bleService = NilLiteralConvertible
+            
+            //connect to peripheral
+            self.centralManager.connectPeripheral(<#T##peripheral: CBPeripheral##CBPeripheral#>, options: <#T##[String : AnyObject]?#>)
+        }
+    }
+    func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {
+        guard let _ = peripheral else{
+            return
+        }
+        
+        if peripheral == self.peripheralBLE{
+            self.bleService = IZService(WithPeripheral: peripheral)
+        }
+        self.centralManager.stopScan()
+    }
+    
+    func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
+        guard let _ = peripheral else{
+            return
+        }
+        if peripheral == self.peripheralBLE{
+            self.bleService = NilLiteralConvertible
+            
+        }
+        self.startScanning()
+    }
+    
+    func clearDevices(){
+        self.bleService = NilLiteralConvertible
+        self.peripheralBLE = NilLiteralConvertible
+    }
+    
+    func centralManagerDidUpdateState(central: CBCentralManager) {
+        switch self.centralManager.state {
+        case CBCentralManagerStatePoweredOff:
+            self.clearDevices()
+        case CBCentralManagerStateUnauthorized:
+            //indicate to user that the IOS device doe not suppport BLE
+            break
+        case CBCentralManagerStateUnknown:
+            //wait for another event
+            break
+        case CBCentralManagerStatePoweredOn:
+            self.startScanning()
+        case CBCentralManagerStateResetting:
+            self.clearDevices()
+        case CBCentralManagerStateUnsupported:
+            break
+        default:
+            break
+        
+        
+    }
         
         
         
