@@ -7,119 +7,106 @@
 //
 
 import CoreBluetooth
-import IZService.swift
-
 
 class IZDiscovery: NSObject, CBCentralManagerDelegate {
-        
-        var centralManager: CBCentralManager
-        var peripheral: CBPeripheral
-        var peripheralBLE: CBPeripheral
-        var bleService: IZService? = nil
-        
-        class var sharedInstance: IZDiscovery {
-            struct Static {
-                static var onceToken: dispatch_once_t = 0
-                static var instance: IZDiscovery? = nil
-            }
-            dispatch_once(&Static.onceToken) {
-                Static.instance = IZDiscovery()
-            }
+    
+    var centralManager: CBCentralManager!
+    var peripheral: CBPeripheral? = nil
+    var bleService: IZService? = nil
+    
+    class var sharedInstance: IZDiscovery {
+        struct Static {
+            static var onceToken: dispatch_once_t = 0
+            static var instance: IZDiscovery? = nil
         }
-        
-        init() {
-            let centralQueue = dispatch_queue_create("org.izipperteam", DISPATCH_QUEUE_SERIAL);
-            self.centralManager = CBCentralManager(delegate: self, queue: centralQueue);
+        dispatch_once(&Static.onceToken) {
+            Static.instance = IZDiscovery()
         }
-    func startScanning(){
-        self.centralManager.scanForPeripheralsWithServices(<#T##serviceUUIDs: [CBUUID]?##[CBUUID]?#>, options: <#T##[String : AnyObject]?#>)
+        return Static.instance!
     }
     
-    func setBleServices(bleService: IZService){
+    override init() {
+        super.init()
+        let centralQueue = dispatch_queue_create("org.izipperteam", DISPATCH_QUEUE_SERIAL)
+        centralManager = CBCentralManager(delegate: self, queue: centralQueue)
+    }
+    
+    func startScanning() {
+        self.centralManager.scanForPeripheralsWithServices([RWT_BLE_SERVICE_UUID], options: nil)
+    }
+    
+    func setBleServices(bleService: IZService) {
         self.bleService = bleService
         self.bleService?.startDiscoveringServices()
         
     }
     
-    
-        
     func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {
         // Can't be null, so you don't need to check peripheral == null
         guard let _ = peripheral.name else {
             return
         }
         
-        
-        if let peripheralBLE = self.peripheral where self.peripheralBLE.state == CBperipheralStateDisconnected{
+        if self.peripheral?.state == .Disconnected {
             //retain the peripheral before trying to connect
-            self.peripheralBLE = peripheral
-            
+            self.peripheral = peripheral
             //reset service
-            self.bleService = NilLiteralConvertible
-            
+            self.bleService = nil
             //connect to peripheral
-            self.centralManager.connectPeripheral(<#T##peripheral: CBPeripheral##CBPeripheral#>, options: <#T##[String : AnyObject]?#>)
+            self.centralManager.connectPeripheral(peripheral, options: nil)
         }
     }
+    
     func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {
-        guard let _ = peripheral else{
-            return
-        }
-        
-        if peripheral == self.peripheralBLE{
-            self.bleService = IZService(WithPeripheral: peripheral)
+        if peripheral == self.peripheral {
+            self.bleService = IZService(peripheral: peripheral)
         }
         self.centralManager.stopScan()
     }
     
     func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
-        guard let _ = peripheral else{
-            return
-        }
-        if peripheral == self.peripheralBLE{
-            self.bleService = NilLiteralConvertible
-            
+        if peripheral == self.peripheral {
+            self.bleService = nil
         }
         self.startScanning()
     }
     
     func clearDevices(){
-        self.bleService = NilLiteralConvertible
-        self.peripheralBLE = NilLiteralConvertible
+        self.bleService = nil
+        self.peripheral = nil
     }
     
     func centralManagerDidUpdateState(central: CBCentralManager) {
+        
         switch self.centralManager.state {
-        case CBCentralManagerStatePoweredOff:
+            
+        case .PoweredOff:
             self.clearDevices()
-        case CBCentralManagerStateUnauthorized:
+            
+        case .Unauthorized:
             //indicate to user that the IOS device doe not suppport BLE
             break
-        case CBCentralManagerStateUnknown:
+            
+        case .Unknown:
             //wait for another event
             break
-        case CBCentralManagerStatePoweredOn:
+            
+        case .PoweredOn:
             self.startScanning()
-        case CBCentralManagerStateResetting:
+            
+        case .Resetting:
             self.clearDevices()
-        case CBCentralManagerStateUnsupported:
-            break
+            
         default:
             break
-        
-        
-    }
-        
-        
-        
-        
-        
+            
+        }
         
         
     }
     
     
-   
     
-     
+    
+    
 }
