@@ -79,7 +79,7 @@ class IZService: NSObject, CBPeripheralDelegate {
         }
     }
     
-    func sendStatusChangedNotification(isBluetoothConnected:Bool) {
+    func sendStatusChangedNotification(isBluetoothConnected: Bool) {
         let connectionDetails = ["isConnected": isBluetoothConnected]
         NSNotificationCenter.defaultCenter().postNotificationName(kBLEServiceChangedStatusNotification, object: self, userInfo: connectionDetails)
         
