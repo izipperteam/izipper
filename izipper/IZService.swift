@@ -10,8 +10,8 @@ import UIKit
 import CoreBluetooth
 
 /* Services & Characteristics UUIDs */
-let RWT_BLE_SERVICE_UUID:CBUUID = CBUUID.UUIDWithString("B8E06067-62AD-41BA-9231-206AE80AB550")
-let RWT_POSITION_CHAR_UUID:CBUUID =  CBUUID.UUIDWithString("BF45E40A-DE2A-4BC8-BBA0-E5D6065F1B4B")
+let RWT_BLE_SERVICE_UUID: CBUUID = CBUUID(string: "B8E06067-62AD-41BA-9231-206AE80AB550")
+let RWT_POSITION_CHAR_UUID: CBUUID =  CBUUID(string: "BF45E40A-DE2A-4BC8-BBA0-E5D6065F1B4B")
 
 /* Notifications */
 let kBLEServiceChangedStatusNotification = "kBLEServiceChangedStatusNotification"
@@ -21,9 +21,10 @@ let kBLEServiceChangedStatusNotification = "kBLEServiceChangedStatusNotification
 class IZService: NSObject, CBPeripheralDelegate {
     
     private var peripheral: CBPeripheral?
-    private var characteristic: CBCharacteristic
+    private var characteristic: CBCharacteristic?
     
     init(peripheral: CBPeripheral) {
+        super.init()
         peripheral.delegate = self
         self.peripheral = peripheral
     }

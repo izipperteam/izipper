@@ -8,7 +8,7 @@
 
 import CoreBluetooth
 
-class IZDiscovery: NSObject, CBCentralManagerDelegate {
+class IZDiscovery: CBCentralManagerDelegate {
     
     var centralManager: CBCentralManager!
     var peripheral: CBPeripheral? = nil
