@@ -8,11 +8,13 @@
 
 import UIKit
 import CoreBluetooth
+
 /* Services & Characteristics UUIDs */
 let RWT_BLE_SERVICE_UUID:CBUUID = CBUUID.UUIDWithString("B8E06067-62AD-41BA-9231-206AE80AB550")
 let RWT_POSITION_CHAR_UUID:CBUUID =  CBUUID.UUIDWithString("BF45E40A-DE2A-4BC8-BBA0-E5D6065F1B4B")
+
 /* Notifications */
-var kBLEServiceChangedStatusNotification = "kBLEServiceChangedStatusNotification"
+let kBLEServiceChangedStatusNotification = "kBLEServiceChangedStatusNotification"
 
 
 /* IZService */
@@ -27,25 +29,16 @@ class IZService: NSObject, CBPeripheralDelegate {
     }
     
     func reset() {
-        
-       
         self.peripheral = nil
       
-        self.sendBTServiceNotificationWithIsBluetoothConnected(false)
-        
+        self.sendStatusChangedNotification(false)
     }
-    
-    func dealloc(){
-        self.reset()
-    }//?
-    
     
     func startDiscoveringServices() {
         self.peripheral.discoverServices([RWT_BLE_SERVICE_UUID])//?
     }
     
     func writePosition(position: Uint8) {
-        
         
     }
     
@@ -55,12 +48,9 @@ class IZService: NSObject, CBPeripheralDelegate {
         var services = peripheral.services
         var uuidsForBTService = [RWT_POSITION_CHAR_UUID]  //?
         
-        if (peripheral != self.peripheral){
+        guard peripheral == self.peripheral && error == nil else {
             return
-        }//?
-        if let _ = error {
-            return
-        }//?
+        }
         
         services = peripheral.services
         
@@ -68,12 +58,12 @@ class IZService: NSObject, CBPeripheralDelegate {
             return
         }
         
-        if services.count == 0 {
+        guard !services.isEmpty else {
             return
         }
         
         for service in services {
-            if(service.UUID == RWT_BLE_SERVICE_UUID){
+            if (service.UUID == RWT_BLE_SERVICE_UUID) {
                 peripheral(discoverCharacteristics:uuidsForBTService, forService: service)
             }
         }
@@ -81,25 +71,23 @@ class IZService: NSObject, CBPeripheralDelegate {
     
     func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
         var characteristic = services.characteristics
-        if (peripheral != self.peripheral){
+        if (peripheral != self.peripheral) {
             return
         }
         if let _ = error {
             return
         }
-        for characteristic in characteristics{
+        for characteristic in characteristics {
             if(characteristic.UUID == RWT_POSITION_CHAR_UUID){
                 self.positionCharacteristic = characteristic
             }
-            self.sendBTServiceNotificationWithIsBluetoothConnected(true)
+            self.sendStatusChangedNotification(true)
         }
-        
     }
     
-    func sendBTServiceNotificationWithIsBluetoothConnected(isBluetoothConnected:Bool){
-        var connectionDetails = ["isConnected": isBluetoothConnected]
+    func sendStatusChangedNotification(isBluetoothConnected:Bool) {
+        let connectionDetails = ["isConnected": isBluetoothConnected]
         NSNotificationCenter.defaultCenter(postNotificationName:kBLEServiceChangedStatusNotification, object:self, userInfo:connectionDetails)
-        
     }
     
 
