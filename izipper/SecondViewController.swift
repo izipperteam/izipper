@@ -9,25 +9,28 @@
 import UIKit
 
 class SecondViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    let object: NSMutableArray! = NSMutableArray()
-    let status: NSMutableArray! = NSMutableArray()
+    struct FeatureItem {
+        var title: String
+        var enabled: Bool
+        
+        init(title: String, enabled: Bool) {
+            self.title = title
+            self.enabled = enabled
+        }
+    }
+    
+    var features = [FeatureItem]()
     
     @IBOutlet var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.object.addObject("BLE connection")
-        self.object.addObject("Light")
-        self.object.addObject("Buzzer")
-        self.status.addObject("On")
-        self.status.addObject("Off")
+        features.append(FeatureItem(title: "BLE connection", enabled: false))
+        features.append(FeatureItem(title: "Light", enabled: false))
+        features.append(FeatureItem(title: "Buzzer", enabled: false))
+        
         self.tableView.reloadData()
-        
-        //MARK: BLE setup
-        
-        
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -37,14 +40,13 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
     
     //MARK: -Table View
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        return object.count
+        return features.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = self.tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! TableViewCell
-        cell.Status.text = self.status.objectAtIndex(0) as! String
-        cell.Item.text = self.object.objectAtIndex(indexPath.row) as! String
+        cell.Item.text = self.features[indexPath.row].title
+        cell.Switch.enabled = self.features[indexPath.row].enabled
         
         return cell
     }
