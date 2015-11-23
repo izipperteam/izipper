@@ -19,6 +19,7 @@
 		41A5096B1BE2EF2B007A88E2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41A509691BE2EF2B007A88E2 /* LaunchScreen.storyboard */; };
 		41A509761BE2EF2C007A88E2 /* izipperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A509751BE2EF2C007A88E2 /* izipperTests.swift */; };
 		41A509811BE2EF2C007A88E2 /* izipperUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A509801BE2EF2C007A88E2 /* izipperUITests.swift */; };
+		41D1E0151C028EC90024F468 /* ChatProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D1E0141C028EC90024F468 /* ChatProtocol.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		41A5097C1BE2EF2C007A88E2 /* izipperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = izipperUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		41A509801BE2EF2C007A88E2 /* izipperUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = izipperUITests.swift; sourceTree = "<group>"; };
 		41A509821BE2EF2C007A88E2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41D1E0141C028EC90024F468 /* ChatProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatProtocol.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				41A5095E1BE2EF2B007A88E2 /* AppDelegate.swift */,
 				41A509601BE2EF2B007A88E2 /* FirstViewController.swift */,
 				41A509621BE2EF2B007A88E2 /* SecondViewController.swift */,
+				41D1E0141C028EC90024F468 /* ChatProtocol.swift */,
 				41431DF91BF1AC5F003D6202 /* ThirdViewController.swift */,
 				41A509641BE2EF2B007A88E2 /* Main.storyboard */,
 				413334061BF870B1003E996C /* TableViewCell.swift */,
@@ -278,6 +281,7 @@
 				41431DFA1BF1AC5F003D6202 /* ThirdViewController.swift in Sources */,
 				413334071BF870B1003E996C /* TableViewCell.swift in Sources */,
 				414033B31BE2F93300309EC1 /* IZDiscovery.swift in Sources */,
+				41D1E0151C028EC90024F468 /* ChatProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
