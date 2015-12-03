@@ -160,8 +160,7 @@ class IZService: NSObject, CBPeripheralDelegate
         if error == nil {
             self.characteriticsValue = characteristic.value
             print("succeeded in updating value for characteristics")
-            var datastring = NSString(data: self.characteriticsValue!, encoding: NSUTF8StringEncoding)
-            print(datastring!)
+            print(NSString(data: self.characteriticsValue!, encoding: NSUTF8StringEncoding)!)
         }
         else {
             print("UpdateValueForCharacteristics failed!")

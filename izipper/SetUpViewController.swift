@@ -14,6 +14,7 @@ class SetupViewController: UITableViewController, Sender, Receiver,timeAndLocati
     @IBOutlet weak var batteryStatus: UILabel!
     @IBOutlet weak var ledStatus: UILabel!
     @IBOutlet weak var buzzerStatus: UILabel!
+    
     @IBOutlet weak var recordingStatus: UILabel!
     
     @IBOutlet weak var LEDswitch: UISwitch!
