@@ -9,81 +9,164 @@
 import UIKit
 import CoreBluetooth
 
-/* Services & Characteristics UUIDs */
-let RWT_BLE_SERVICE_UUID: CBUUID = CBUUID(string: "B8E06067-62AD-41BA-9231-206AE80AB550")
-let RWT_POSITION_CHAR_UUID: CBUUID =  CBUUID(string: "BF45E40A-DE2A-4BC8-BBA0-E5D6065F1B4B")
+let BLEServiceUUID: CBUUID = CBUUID(string: "713d0000-503e-4c75-ba94-3148f18d941e")
+let TransmitCharUUID: CBUUID =  CBUUID(string: "713d0003-503e-4c75-ba94-3148f18d941e")
+let ReceiveCharUUID: CBUUID = CBUUID(string: "713D0002-503E-4C75-BA94-3148F18D941E")
+let BLEServiceChangedStatusNotification = "kBLEServiceChangedStatusNotification"
 
-/* Notifications */
-let kBLEServiceChangedStatusNotification = "kBLEServiceChangedStatusNotification"
-
-
-/* IZService */
-class IZService: NSObject, CBPeripheralDelegate {
+class IZService: NSObject, CBPeripheralDelegate
+{
+    var peripheral: CBPeripheral?
+    var transmitCharacteristic: CBCharacteristic?
+    var receiveCharacteristic: CBCharacteristic?
+    var characteriticsValue: NSData?
     
-    private var peripheral: CBPeripheral?
-    private var characteristic: CBCharacteristic?
-    
-    init(peripheral: CBPeripheral) {
+    init(initWithPeripheral peripheral: CBPeripheral)
+    {
         super.init()
-        peripheral.delegate = self
+        
         self.peripheral = peripheral
+        self.peripheral?.delegate = self
     }
     
-    func reset() {
-        self.peripheral = nil
-      
-        self.sendStatusChangedNotification(false)
+    deinit
+    {
+        self.reset()
     }
     
-    func startDiscoveringServices() {
-        self.peripheral?.discoverServices([RWT_BLE_SERVICE_UUID])//?
+    func startDiscoveringServices()
+    {
+        self.peripheral?.discoverServices([BLEServiceUUID])
     }
     
-    func writePosition(position: UInt8) {
+    func reset()
+    {
+        if peripheral != nil
+        {
+            peripheral = nil
+        }
         
+        // Deallocating therefore send notification
+        self.sendIZServiceNotificationWithIsBluetoothConnected(false)
     }
     
-    // CBPeripheralDelegate methods
+    // Mark: - CBPeripheralDelegate
     
-    func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?) {
-        let services = peripheral.services
-        let uuidsForBTService = [RWT_POSITION_CHAR_UUID]  //?
+    func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?)
+    {
+        print(peripheral.services)
         
-        guard peripheral == self.peripheral && error == nil else {
+        let uuidsForIZServiceRX: [CBUUID] = [TransmitCharUUID]
+        let uuidsForIZServiceTX: [CBUUID] = [ReceiveCharUUID]
+        
+        if (peripheral != self.peripheral)
+        {
+            print("wrong peripheral")
             return
         }
         
-        if let services = services {
-            for service in services {
-                if (service.UUID == RWT_BLE_SERVICE_UUID) {
-                    peripheral.discoverCharacteristics(uuidsForBTService, forService: service)
-                }
+        if (error != nil)
+        {
+            print("error")
+            return
+        }
+        
+        if ((peripheral.services == nil) || (peripheral.services!.count == 0)) {
+            print("no services")
+            return
+        }
+        
+        for service in peripheral.services! {
+            if service.UUID == BLEServiceUUID {
+                print("discover service success")
+                peripheral.discoverCharacteristics(uuidsForIZServiceRX, forService: service)
+                peripheral.discoverCharacteristics(uuidsForIZServiceTX, forService: service)
             }
         }
     }
     
     func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
-        let characteristics = service.characteristics
-        
-        if peripheral != self.peripheral || error != nil {
+        if (peripheral != self.peripheral) {
+            print("wrong peripheral")
             return
         }
         
-        if let characteristics = characteristics {
+        if (error != nil) {
+            print("error")
+            return
+        }
+        
+        print("trying to find characteristic with UUID: \(TransmitCharUUID)and UUID: \(ReceiveCharUUID)")
+        
+        if let characteristics = service.characteristics {
             for characteristic in characteristics {
-                if (characteristic.UUID == RWT_POSITION_CHAR_UUID) {
-                    self.characteristic = characteristic
+                if characteristic.UUID == TransmitCharUUID {
+                    print("characteristic for PositionCharUUID success")
+                    self.transmitCharacteristic = characteristic
+                    peripheral.setNotifyValue(true, forCharacteristic: characteristic)
+                    self.sendIZServiceNotificationWithIsBluetoothConnected(true)
                 }
-                self.sendStatusChangedNotification(true)
+                
+                if characteristic.UUID == ReceiveCharUUID {
+                    print("characteristic for ReceiveCharUUID success")
+                    self.receiveCharacteristic = characteristic
+                    peripheral.setNotifyValue(true, forCharacteristic: characteristic)
+                }
+                
+                
             }
+            
+        }
+        
+        print(service.characteristics)
+    }
+    
+    // Mark: - Private
+    
+    func writePosition(position: UInt8) {
+        // See if characteristic has been discovered before writing to it
+        if let transmitCharacteristic = self.transmitCharacteristic {
+            // Need a mutable var to pass to writeValue function
+            var positionValue = position
+            let data = NSData(bytes: &positionValue, length: sizeof(UInt8))
+            self.peripheral?.writeValue(data, forCharacteristic: transmitCharacteristic, type: CBCharacteristicWriteType.WithoutResponse)
         }
     }
     
-    func sendStatusChangedNotification(isBluetoothConnected: Bool) {
+    func sendIZServiceNotificationWithIsBluetoothConnected(isBluetoothConnected: Bool) {
         let connectionDetails = ["isConnected": isBluetoothConnected]
-        NSNotificationCenter.defaultCenter().postNotificationName(kBLEServiceChangedStatusNotification, object: self, userInfo: connectionDetails)
+        NSNotificationCenter.defaultCenter().postNotificationName(BLEServiceChangedStatusNotification, object: self, userInfo: connectionDetails)
+    }
+    
+    //MARK: implement readvalue and related function
+    func readValue() {
+        guard self.peripheral != nil else {
+            print("fail to find peripheral when trying to read value")
+            return
+        }
+        guard self.receiveCharacteristic != nil else {
+            print("fail to find positionCharacteristics when trying to read value")
+            return
+        }
+        
+        self.peripheral?.readValueForCharacteristic(self.receiveCharacteristic!)
+        
+        print(self.characteriticsValue?.bytes)
         
     }
     
-
+    
+    func peripheral(peripheral: CBPeripheral, didUpdateValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+        if error == nil {
+            self.characteriticsValue = characteristic.value
+            print("succeeded in updating value for characteristics")
+            var datastring = NSString(data: self.characteriticsValue!, encoding: NSUTF8StringEncoding)
+            print(datastring!)
+        }
+        else {
+            print("UpdateValueForCharacteristics failed!")
+        }
+        
+    }
+    
 }
